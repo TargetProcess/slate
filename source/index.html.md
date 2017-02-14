@@ -1,18 +1,5 @@
 ---
-title: API Reference
-
-language_tabs:
-  - shell
-  - ruby
-  - python
-  - javascript
-
-toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a>
-
-includes:
-  - errors
+title: Survey Widget API
 
 search: true
 ---
@@ -65,125 +52,438 @@ Kittn expects for the API key to be included in all API requests to the server i
 You must replace <code>meowmeowmeow</code> with your personal API key.
 </aside>
 
-# Kittens
+#Pagination
 
-## Get All Kittens
+Use Hapi pagination.
 
-```ruby
-require 'kittn'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
+# Surveys
+
+Methods | Path
+--------- | -------
+POST | /surveys
+PUT | /surveys/{id}
+
+## Generate a survey
+
+> Example request: 
+
+```json
+{
+  "parameters": {
+  "length": 5,
+  "bucket": "Main"
+  },
+  "target": {
+  "id": "plan.tpondemand.com-1",
+  "tpUserId": "1",
+  "userCreated": "2012-04-23T18:25:43.511Z",
+  "isAdministrator": true,
+  "role": "Developer",
+  "host": "plan.tpondemand.com",
+  "hostCreated": "2012-04-23T18:25:43.511Z",
+  "isPaid": true,
+  "licenses": 100
+  }
+}
 ```
 
-```python
-import kittn
+> Example response: 
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
+```json
+[
+  {
+  "id": 1,
+  "questions": [
+    {
+    "id": 1
+    },
+    {
+    "id": 2
+    }
+  ]
+  }
+]
 ```
 
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
+`POST https://survey-widget.com/api/surveys`
 
-```javascript
-const kittn = require('kittn');
 
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
-```
+Parameter | Default | Description
+--------- | ------- | -----------
+length | 5 | The number of questions in the survey
+bucket | Main | The bucket from which to pick questions
 
-> The above command returns JSON structured like this:
+## Submit answers to a survey
+
+> Example request: 
 
 ```json
 [
   {
     "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
+    "wasShown": true,
+    "wasAnswered": true,
+    "answer": 6
   },
   {
     "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
+    "wasShown": true,
+    "wasAnswered": false
   }
 ]
 ```
 
-This endpoint retrieves all kittens.
+> Example response: 
 
-### HTTP Request
+```json
+{
+  "wasAccepted": true
+}
+```
 
-`GET http://example.com/api/kittens`
+> or
+
+```json
+{
+  "wasAccepted": false,
+  "error": "There's no survey with this id"
+}
+```
+
+`PUT https://survey-widget.com/api/surveys/{id}`
+
+# Questions
+
+## Available paths
+
+Methods | Path
+--------- | -------
+GET, PUT | /questions
+GET, POST, DELETE | /questions/{id}
+
+## Get list of questions
+
+>Example response
+
+```json
+[
+  {
+    "id": 1,
+    "type": "rating",
+    "text": "How likely would you be to recommend Targetprocess to a friend or colleague?",
+    "from": 0,
+    "to": 10,
+    "isActive": true,
+    "addedDate": "2012-04-23T18:25:43.511Z",
+    "deletedDate": null,
+    "answersLimit": 1000,
+    "buckets": ["Main", "Automatic"]
+  },
+  {
+    "id": 2,
+    "type": "single choice",
+    "text": "What is your primary messaging tool?",
+    "options": ["Slack", "Hiphcat", "Skype", "Custom-built", "Email", "Other"],
+    "isActive": true,
+    "addedDate": "2012-04-23T18:25:43.511Z",
+    "deletedDate": null,
+    "answersLimit": null,
+    "buckets": ["Main"]
+  },
+  {
+    "id": 3,
+    "type": "text",
+    "text": "Tell us what you love and hate in Targetprocess",
+    "isActive": true,
+    "addedDate": "2012-04-23T18:25:43.511Z",
+    "deletedDate": null,
+    "answersLimit": null,
+    "buckets": ["Main"]
+  }
+]
+```
+
+`GET https://survey-widget.com/api/questions`
 
 ### Query Parameters
 
 Parameter | Default | Description
 --------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+page_size | 100 | The number of questions in one page
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
 
-## Get a Specific Kitten
+## Get a specific question
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
+> Example response:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "id": 1,
+  "type": "rating",
+  "text": "How likely would you be to recommend Targetprocess to a friend or colleague?",
+  "from": 0,
+  "to": 10,
+  "isActive": true,
+  "addedDate": "2012-04-23T18:25:43.511Z",
+  "deletedDate": null,
+  "answersLimit": 1000,
+  "buckets": ["Main", "Automatic"]
 }
 ```
 
-This endpoint retrieves a specific kitten.
+`GET https://survey-widget.com/api/questions/{id}`
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+## Add a question
 
-### HTTP Request
+> Example request:
 
-`GET http://example.com/kittens/<ID>`
+```json
+{
+  "type": "rating",
+  "text": "How likely would you be to recommend Targetprocess to a friend or colleague?",
+  "from": 0,
+  "to": 10,
+  "isActive": true,
+  "answersLimit": 1000,
+  "buckets": ["Main", "Automatic"]
+}
+```
 
-### URL Parameters
+> Example response:
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+```json
+{
+  "wasAdded": true,
+  "id": 1
+}
+```
 
+> or
+
+```json
+{
+  "wasAdded": false,
+  "error": "Wrong format"
+}
+```
+
+`PUT https://survey-widget.com/api/questions`
+
+## Edit a question
+
+> Example request:
+
+```json
+{
+  "text": "How do you rate Targetprocess?"
+}
+```
+
+> Example response:
+
+```json
+{
+  "wasEdited": true
+}
+```
+
+> or
+
+```json
+{
+  "wasEdited": false,
+  "error": "There's no question with this id"
+}
+```
+
+`POST https://survey-widget.com/api/questions/{id}`
+
+## Delete a question
+
+> Example response:
+
+```json
+{
+  "wasDeleted": true
+}
+```
+
+> or
+
+```json
+{
+  "wasDeleted": false,
+  "error": "There's no question with this id"
+}
+```
+
+`POST https://survey-widget.com/api/questions/{id}`
+
+# Buckets
+
+Methods | Path
+--------- | -------
+GET, PUT | /buckets
+GET, POST, DELETE | /buckets/{id}
+
+## Get a list of buckets
+
+> Example response:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Main",
+    "addedDate": "2012-04-23T18:25:43.511Z",
+    "deletedDate": null,
+    "firstQuestionId": 1,
+    "lastQuestionId": 3
+  },
+  {
+    "id": 2,
+    "name": "Automatic",
+    "addedDate": "2012-04-23T18:25:43.511Z",
+    "deletedDate": "2015-04-23T18:25:43.511Z",
+    "firstQuestionId": 3,
+    "lastQuestionId": null
+  }
+]
+```
+
+`GET https://survey-widget.com/api/buckets`
+
+## Get a specific bucket
+
+> Example response:
+
+```json
+{
+  "id": 1,
+  "name": "Main",
+  "addedDate": "2012-04-23T18:25:43.511Z",
+  "deletedDate": null,
+  "firstQuestionId": 1,
+  "lastQuestionId": 3,
+  "questions": [1, 2, 5]
+}
+```
+
+`GET https://survey-widget.com/api/buckets/{id}`
+
+## Add a bucket
+
+> Example request:
+
+```json
+{
+  "name": "Main",
+  "firstQuestionId": 1,
+  "lastQuestionId": 3
+}
+```
+
+> Example response:
+
+```json
+{
+  "wasAdded": true,
+  "id": 1
+}
+```
+
+> or
+
+```json
+{
+  "wasAdded": false,
+  "error": "Wrong format"
+}
+```
+
+`PUT https://survey-widget.com/api/buckets`
+
+## Edit a bucket
+
+> Example request:
+
+```json
+{
+  "name": "Main"
+}
+```
+
+> Example response:
+
+```json
+{
+  "wasEdited": true
+}
+```
+
+> or
+
+```json
+{
+  "wasEdited": false,
+  "error": "There's no bucket with this id"
+}
+```
+
+`POST https://survey-widget.com/api/buckets/{id}`
+
+## Delete a bucket
+
+> Example request:
+
+```json
+{
+  "id": 2
+}
+```
+
+> Example response:
+
+```json
+{
+  "wasDeleted": true
+}
+```
+
+> or
+
+```json
+{
+  "wasDeleted": false,
+  "error": "There's no bucket with this id"
+}
+```
+
+`DELETE https://survey-widget.com/api/buckets/{id}`
+
+# Users
+
+Methods | Path
+--------- | -------
+GET | /users/{id}
+
+## Get a specific user
+
+> Example response:
+
+```json
+{
+  "id": "plan.tpondemand.com-1",
+  "userId": "1",
+  "userCreated": "2012-04-23T18:25:43.511Z",
+  "isAdministrator": true,
+  "role": "Developer",
+  "host": "plan.tpondemand.com",
+  "hostCreated": "2012-04-23T18:25:43.511Z",
+  "isPaid": true,
+  "licenses": 100
+}
+```
+
+`GET https://survey-widget.com/api/users/{id}`
