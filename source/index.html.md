@@ -4,53 +4,9 @@ title: Survey Widget API
 search: true
 ---
 
-# Introduction
-
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
-
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
-
-This example API documentation page was created with [Slate](https://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
-
 # Authentication
 
-> To authorize, use this code:
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
-
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
+Use HTTP-basic.
 
 #Pagination
 
@@ -71,19 +27,24 @@ PUT | /surveys/{id}
 ```json
 {
   "parameters": {
-  "length": 5,
-  "bucket": "Main"
+    "length": 5,
+    "bucket": "Manual"
   },
   "target": {
-  "id": "plan.tpondemand.com-1",
-  "tpUserId": "1",
-  "userCreated": "2012-04-23T18:25:43.511Z",
-  "isAdministrator": true,
-  "role": "Developer",
-  "host": "plan.tpondemand.com",
-  "hostCreated": "2012-04-23T18:25:43.511Z",
-  "isPaid": true,
-  "licenses": 100
+    "id": "plan.tpondemand.com-1",
+    "ip": "212.134.105.210",
+    "user": {
+      "userId": 1,
+      "createdDate": "2012-04-23T18:25:43.511Z",
+      "isAdministrator": true,
+      "role": "Developer"
+    },
+    "account": {
+      "host": "plan.tpondemand.com",
+      "createdDate": "2012-04-23T18:25:43.511Z",
+      "isPaid": true,
+      "licenses": 100
+    }
   }
 }
 ```
@@ -178,7 +139,7 @@ GET, POST, DELETE | /questions/{id}
     "addedDate": "2012-04-23T18:25:43.511Z",
     "deletedDate": null,
     "answersLimit": 1000,
-    "buckets": ["Main", "Automatic"]
+    "buckets": ["Manual", "Automatic"]
   },
   {
     "id": 2,
@@ -189,7 +150,7 @@ GET, POST, DELETE | /questions/{id}
     "addedDate": "2012-04-23T18:25:43.511Z",
     "deletedDate": null,
     "answersLimit": null,
-    "buckets": ["Main"]
+    "buckets": ["Manual"]
   },
   {
     "id": 3,
@@ -199,7 +160,7 @@ GET, POST, DELETE | /questions/{id}
     "addedDate": "2012-04-23T18:25:43.511Z",
     "deletedDate": null,
     "answersLimit": null,
-    "buckets": ["Main"]
+    "buckets": ["Manual"]
   }
 ]
 ```
@@ -228,7 +189,7 @@ page_size | 100 | The number of questions in one page
   "addedDate": "2012-04-23T18:25:43.511Z",
   "deletedDate": null,
   "answersLimit": 1000,
-  "buckets": ["Main", "Automatic"]
+  "buckets": ["Manual", "Automatic"]
 }
 ```
 
@@ -246,7 +207,7 @@ page_size | 100 | The number of questions in one page
   "to": 10,
   "isActive": true,
   "answersLimit": 1000,
-  "buckets": ["Main", "Automatic"]
+  "buckets": ["Manual", "Automatic"]
 }
 ```
 
@@ -335,19 +296,29 @@ GET, POST, DELETE | /buckets/{id}
 [
   {
     "id": 1,
-    "name": "Main",
+    "name": "Manual",
+    "isDefault": false,
+    "isAutomatic": false,
     "addedDate": "2012-04-23T18:25:43.511Z",
     "deletedDate": null,
-    "firstQuestionId": 1,
-    "lastQuestionId": 3
+    "defaultSurveyLength": 5,
+    "firstQuestionId": 3,
+    "lastQuestionId": null,
+    "autoDaysToAdapt": null,
+    "autoFrequencyDays": null
   },
   {
     "id": 2,
     "name": "Automatic",
+    "isDefault": true,
+    "isAutomatic": true,
     "addedDate": "2012-04-23T18:25:43.511Z",
-    "deletedDate": "2015-04-23T18:25:43.511Z",
-    "firstQuestionId": 3,
-    "lastQuestionId": null
+    "deletedDate": null,
+    "defaultSurveyLength": 5,
+    "firstQuestionId": 1,
+    "lastQuestionId": 3,
+    "autoDaysToAdapt": 90,
+    "autoFrequencyDays": 180
   }
 ]
 ```
@@ -361,7 +332,7 @@ GET, POST, DELETE | /buckets/{id}
 ```json
 {
   "id": 1,
-  "name": "Main",
+  "name": "Manual",
   "addedDate": "2012-04-23T18:25:43.511Z",
   "deletedDate": null,
   "firstQuestionId": 1,
@@ -378,7 +349,7 @@ GET, POST, DELETE | /buckets/{id}
 
 ```json
 {
-  "name": "Main",
+  "name": "Manual",
   "firstQuestionId": 1,
   "lastQuestionId": 3
 }
@@ -410,7 +381,7 @@ GET, POST, DELETE | /buckets/{id}
 
 ```json
 {
-  "name": "Main"
+  "name": "Manual"
 }
 ```
 
@@ -487,3 +458,23 @@ GET | /users/{id}
 ```
 
 `GET https://survey-widget.com/api/users/{id}`
+
+# Automatic trigger
+
+Methods | Path
+--------- | -------
+GET | /auto/{user.id}
+
+## Generate the next automatic trigger date
+
+```json
+{
+  "bucket": "Automatic",
+  "nextDate": "2017-04-23T18:25:43.511Z"
+}
+```
+
+We give users `autoDaysToAdapt` (default=90) days to adapt to the system.
+
+Then we generate the next trigger date by adding a random number of days between 0 and `autoFrequencyDays` (default=180).
+
